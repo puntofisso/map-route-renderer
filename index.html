@@ -3,7 +3,8 @@
 
   This will take a set of geojson routes and animate them progressively into an MP4 video.
 
-  “Documentation”: https://twitter.com/mwichary/status/1427007100845060096
+  Original “Documentation”: https://twitter.com/mwichary/status/1427007100845060096 
+  Instructions by @puntofisso: https://github.com/puntofisso/map-route-renderer
 
   Necessary libraries:
   - d3.v7.js: Download from https://d3js.org/
@@ -24,6 +25,7 @@
   --
 
   Copyright © 2021 Marcin Wichary
+  Copyright © 2019 Giuseppe Sollazzo 
 
   Permission is hereby granted, free of charge, to any person obtaining a copy
   of this software and associated documentation files (the "Software"), to deal
@@ -74,16 +76,21 @@
   // ------------------------------------------------------------
 
   // Frames per second 
-  const FRAMERATE = 60 
+  const FRAMERATE = 20 
   // How many routes to draw
-  const ROUTE_COUNT = 20
+  const ROUTE_COUNT = 75
 
   // Which frames to render. Rendering all the frames of the video will likely exhaust
   // the memory. Here you can render just a bit and then splice all the MP4s together
   // at the end using ffmpeg
-  const FIRST_FRAME_TO_RENDER = 100
-  const LAST_FRAME_TO_RENDER = 150
+  const FIRST_FRAME_TO_RENDER = 0
+  const LAST_FRAME_TO_RENDER = 1500
 
+
+  // COORDINATES etc
+const LONGITUDE = -0.119820
+const LATITUDE = 51.559143
+const SCALE = 500000
 
   // HELPER FUNCTIONS
   // ------------------------------------------------------------
@@ -228,9 +235,9 @@
       .getContext('2d');
 
     let projection = d3.geoMercator()
-      .center([-122.4425153, 37.7545106]) // Middle of San Francisco
+      .center([LONGITUDE, LATITUDE]) 
       .translate([800, 800]) // Matches the canvas width
-      .scale([600000])
+      .scale([SCALE])
 
     let geoGenerator = d3.geoPath()
       .projection(projection)
@@ -326,7 +333,7 @@
   function compileVideo() {
     console.warn('Step 4: Compiling into video…')
 
-    let worker = new Worker('/ffmpeg-worker-mp4.js')
+    let worker = new Worker('./ffmpeg-worker-mp4.js')
 
     worker.onmessage = function(e) {
       var msg = e.data
